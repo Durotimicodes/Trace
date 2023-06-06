@@ -1,9 +1,11 @@
 package migrations
 
 import (
+	"fmt"
+
 	"github.com/durotimicodes/trace-backend/helpers"
 	"github.com/durotimicodes/trace-backend/models"
-	
+
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
@@ -41,14 +43,17 @@ func createAccount() {
 }
 
 
-func Migrate() {
+func Migrate() error {
 
 	db:= helpers.ConnectDB()
-	db.AutoMigrate(&models.User{}, &models.Account{})
+	err := db.AutoMigrate(&models.User{}, &models.Account{})
+	if err != nil {
+		return fmt.Errorf("error migrating models: %v", err)
+	}
 	defer db.Close()
 	createAccount()
 
-	
+	return nil
 
 }
 
