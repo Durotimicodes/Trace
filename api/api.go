@@ -28,9 +28,9 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 	//Handle Login
 	var formattedBody Login
-	
+
 	err = json.Unmarshal(body, &formattedBody)
-	fmt.Println("This is the body =>",formattedBody)
+	log.Println("THE ERROR =>", err)
 	helpers.HandleErr(err)
 	login := users.Login(formattedBody.Username, formattedBody.Password)
 
@@ -40,18 +40,20 @@ func login(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(resp)
 	} else {
 		//Handle error
-		resp := ErrResponse{Message: "Wrong username or password"}
+		resp := ErrResponse{Message: "Invalid credentials"}
 		json.NewEncoder(w).Encode(resp)
 	}
 }
 
-func StartApi(){
+func StartApi() {
+
+	const webPort = ":8888"
 
 	router := mux.NewRouter()
 
 	router.HandleFunc("/login", login).Methods("POST")
-	
-	fmt.Println("App is working on port :8888")
+
+	fmt.Printf("Starting server on port %s", webPort)
 	log.Fatal(http.ListenAndServe(":8888", router))
 
 }

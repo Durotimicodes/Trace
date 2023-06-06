@@ -13,7 +13,7 @@ func Login(username string, pass string) map[string]interface{} {
 
 	//Connect db
 	db := helpers.ConnectDB()
-	user := models.User{}
+	user := &models.User{}
 	if db.Where("username = ?", username).First(&user).RecordNotFound(){
 		return map[string]interface{}{"message": "User not found"}
 	}
@@ -22,7 +22,7 @@ func Login(username string, pass string) map[string]interface{} {
 	passErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(pass))
 
 	if passErr == bcrypt.ErrMismatchedHashAndPassword && passErr != nil {
-		return map[string]interface{}{"message": "wrong password"}
+		return map[string]interface{}{"message": "Wrong password"}
 	}
 
 	//Find account for the user
@@ -42,7 +42,7 @@ func Login(username string, pass string) map[string]interface{} {
 	//Sign in jwt Token
 	tokenContent := jwt.MapClaims{
 		"user_id": user.ID,
-		"expiry": time.Now().Add(time.Minute ^ 60).Unix(),
+		"expiry": time.Now().Add(time.Minute ^ 10).Unix(),
 	}
 	
 	jwtToken := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tokenContent)

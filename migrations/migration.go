@@ -45,8 +45,11 @@ func createAccount() {
 
 func Migrate() error {
 
+	User := &models.User{}
+	Account := &models.Account{}
 	db:= helpers.ConnectDB()
-	err := db.AutoMigrate(&models.User{}, &models.Account{})
+
+	err := db.AutoMigrate(&User, &Account)
 	if err != nil {
 		return fmt.Errorf("error migrating models: %v", err)
 	}
