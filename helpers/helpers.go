@@ -1,8 +1,11 @@
 package helpers
 
 import (
-	"golang.org/x/crypto/bcrypt"
+	"fmt"
+	"os"
+
 	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func HandleErr(err error) {
@@ -19,7 +22,15 @@ func HashAndSalt(pass []byte) string {
 }
 
 func ConnectDB() *gorm.DB {
-	db, err := gorm.Open("postgres", "host=127.0.0.1 port=5433 user=postgres dbname=tracebankapp password=postgres sslmode=disable")
+
+	host := os.Getenv("DB_HOST")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	port := os.Getenv("DB_PORT")
+
+	dsn := fmt.Sprintf("host=%s port=%s user=%s  dbName=%s password=%s sslmode=disable", host, port,user, dbName, password )
+	db, err := gorm.Open(dsn)
 	HandleErr(err)
 	return db
 }

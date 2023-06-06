@@ -13,6 +13,7 @@ import (
 func createAccount() {
 	db := helpers.ConnectDB()
 
+	//dommy data
 	users := []models.User{
 		{Username: "Oluwadurotimi", Email: "edmondfagbuyi@gmail.com"},
 		{Username: "Ebunoluwa", Email: "omotarfagbuyi@gmail.com"},
@@ -38,6 +39,7 @@ func createAccount() {
 
 	defer db.Close()//close the db connection
 }
+
 
 func Migrate() {
 
