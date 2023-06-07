@@ -35,7 +35,7 @@ func prepareResponse(user *models.User, account []models.ResponseAccount) map[st
 
 	//Prepare response
 	token := prepareToken(user)
-	var response = map[string]interface{}{"message": "Login Successfull"}
+	var response = map[string]interface{}{"message": "All is fine"}
 	response["jwt"] = token
 	response["data"] = responseUser
 
