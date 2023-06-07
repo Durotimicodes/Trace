@@ -2,30 +2,13 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/durotimicodes/trace-backend/helpers"
+	"github.com/durotimicodes/trace-backend/models"
 	"github.com/durotimicodes/trace-backend/users"
-	"github.com/gorilla/mux"
 )
-
-type Login struct {
-	Username string
-	Password string
-}
-
-type Register struct {
-	Username string
-	Email    string
-	Password string
-}
-
-type ErrResponse struct {
-	Message string
-}
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	//Read body
@@ -33,7 +16,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	helpers.HandleErr(err)
 
 	//Handle Login
-	var formattedBody Login
+	var formattedBody models.Login
 
 	err = json.Unmarshal(body, &formattedBody)
 	helpers.HandleErr(err)
@@ -45,7 +28,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(resp)
 	} else {
 		//Handle error
-		resp := ErrResponse{Message: "Invalid credentials"}
+		resp := models.ErrResponse{Message: "Invalid credentials"}
 		json.NewEncoder(w).Encode(resp)
 	}
 }
@@ -56,7 +39,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	helpers.HandleErr(err)
 
 	//Handle Register
-	var formattedBody Register
+	var formattedBody models.Register
 
 	err = json.Unmarshal(body, &formattedBody)
 	helpers.HandleErr(err)
@@ -68,23 +51,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(resp)
 	} else {
 		//Handle error
-		resp := ErrResponse{"Wrong username or password"}
+		resp := models.ErrResponse{"Wrong username or password"}
 		json.NewEncoder(w).Encode(resp)
 	}
-}
-
-
-
-func StartApi() {
-
-	const webPort = ":8888"
-
-	router := mux.NewRouter()
-
-	router.HandleFunc("/login", loginHandler).Methods("POST")
-	router.HandleFunc("/register", registerHandler).Methods("POST")
-
-	fmt.Printf("Starting server on port %s", webPort)
-	log.Fatal(http.ListenAndServe(":8888", router))
-
 }
