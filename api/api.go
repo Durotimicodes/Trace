@@ -10,21 +10,19 @@ import (
 	"github.com/durotimicodes/trace-backend/users"
 )
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	//Read body
+func readBody(r *http.Request) []byte {
+
 	body, err := ioutil.ReadAll(r.Body)
 	helpers.HandleErr(err)
 
-	//Handle Login
-	var formattedBody models.Login
+	return body
+}
 
-	err = json.Unmarshal(body, &formattedBody)
-	helpers.HandleErr(err)
-	login := users.Login(formattedBody.Username, formattedBody.Password)
+func apiResponse(call map[string]interface{}, w http.ResponseWriter) {
 
 	//Prepare response
-	if login["message"] == "Login Successfull" {
-		resp := login
+	if call["message"] == "All is fine" {
+		resp := call
 		json.NewEncoder(w).Encode(resp)
 	} else {
 		//Handle error
@@ -33,25 +31,32 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	//Read body
+	body := readBody(r)
+
+	//Handle Login
+	var formattedBody models.Login
+
+	err := json.Unmarshal(body, &formattedBody)
+	helpers.HandleErr(err)
+	login := users.Login(formattedBody.Username, formattedBody.Password)
+
+	//Prepare response
+	apiResponse(login, w)
+}
+
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	//Read body
-	body, err := ioutil.ReadAll(r.Body)
-	helpers.HandleErr(err)
+	body := readBody(r)
 
 	//Handle Register
 	var formattedBody models.Register
 
-	err = json.Unmarshal(body, &formattedBody)
+	err := json.Unmarshal(body, &formattedBody)
 	helpers.HandleErr(err)
 	register := users.Register(formattedBody.Username, formattedBody.Email, formattedBody.Password)
 
 	//Prepare response
-	if register["message"] == "All is fine" {
-		resp := register
-		json.NewEncoder(w).Encode(resp)
-	} else {
-		//Handle error
-		resp := models.ErrResponse{"Wrong username or password"}
-		json.NewEncoder(w).Encode(resp)
-	}
+	apiResponse(register, w)
 }
