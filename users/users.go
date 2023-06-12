@@ -24,7 +24,7 @@ func prepareToken(user *models.User) string {
 
 }
 
-func prepareResponse(user *models.User, account []models.ResponseAccount) map[string]interface{} {
+func prepareResponse(user *models.User, account []models.ResponseAccount, withToken bool) map[string]interface{} {
 	//Setup response
 	responseUser := models.ResponseUser{
 		ID:       user.ID,
@@ -34,9 +34,11 @@ func prepareResponse(user *models.User, account []models.ResponseAccount) map[st
 	}
 
 	//Prepare response
-	token := prepareToken(user)
 	var response = map[string]interface{}{"message": "All is fine"}
-	response["jwt"] = token
+	if withToken {
+		token := prepareToken(user)
+		response["jwt"] = token
+	}
 	response["data"] = responseUser
 
 	return response
@@ -73,7 +75,7 @@ func Login(username string, pass string) map[string]interface{} {
 
 		defer db.Close()
 
-		var response = prepareResponse(user, account)
+		var response = prepareResponse(user, account, true)
 
 		return response
 
@@ -119,7 +121,7 @@ func Register(username, email, pass string) map[string]interface{} {
 		}
 		accounts = append(accounts, respAccount)
 
-		var response = prepareResponse(&user, accounts)
+		var response = prepareResponse(&user, accounts, true)
 
 		return response
 
@@ -128,3 +130,8 @@ func Register(username, email, pass string) map[string]interface{} {
 		return map[string]interface{}{"message": "Not valid credentials"}
 	}
 }
+
+
+// func GetUser(id string, jwt string) map[string]interface{}{
+
+// }
