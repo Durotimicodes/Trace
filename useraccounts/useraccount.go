@@ -52,7 +52,7 @@ func Transaction(userId uint, from uint, to uint, amount int, jwt string) map[st
 		if fromAccount == nil || toAccount == nil {
 			return map[string]interface{}{"message": "Account not found"}
 		} else if fromAccount.UserID != userId {
-			return map[string]interface{}{"message": "Account not found"}
+			return map[string]interface{}{"message": "Wrong user account"}
 		} else if int(fromAccount.Balance) < amount {
 			return map[string]interface{}{"message": "Insufficient Account Balance"}
 		}

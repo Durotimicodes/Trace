@@ -8,6 +8,7 @@ import (
 func main() {
 
 	migrations.Migrate()
+	migrations.MigrateTranscations()
 	api.StartApi()
 
 }

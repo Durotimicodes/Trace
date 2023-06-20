@@ -9,9 +9,6 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-
-
-
 func createAccounts() {
 	db := helpers.ConnectDB()
 
@@ -21,33 +18,32 @@ func createAccounts() {
 		{Username: "Ebunoluwa", Email: "omotarfagbuyi@gmail.com"},
 	}
 
-	for i:=0 ; i < len(users); i++ {
+	for i := 0; i < len(users); i++ {
 		generatePassword := helpers.HashAndSalt([]byte(users[i].Username))
 		user := models.User{
 			Username: users[i].Username,
-			Email: users[i].Email,
+			Email:    users[i].Email,
 			Password: generatePassword,
 		}
 		db.Create(&user)
 
 		account := models.Account{
-			Type: "Savings Account",
-			Name: string(users[i].Username + "'s" + " account"),
+			Type:    "Savings Account",
+			Name:    string(users[i].Username + "'s" + " account"),
 			Balance: uint(10000 * int(i+1)),
-			UserID: user.ID,
+			UserID:  user.ID,
 		}
 		db.Create(&account)
 	}
 
-	defer db.Close()//close the db connection
+	defer db.Close() //close the db connection
 }
-
 
 func Migrate() error {
 
 	User := &models.User{}
 	Account := &models.Account{}
-	db:= helpers.ConnectDB()
+	db := helpers.ConnectDB()
 
 	err := db.AutoMigrate(&User, &Account)
 	if err != nil {
@@ -60,16 +56,17 @@ func Migrate() error {
 
 }
 
-func MigrateTranscations() {
+func MigrateTranscations() error {
 
 	Transactions := &models.Transaction{}
 
 	db := helpers.ConnectDB()
-	db.AutoMigrate(&Transactions)
+	err := db.AutoMigrate(&Transactions)
+	if err != nil {
+		return fmt.Errorf("error migrating models: %v", err)
+	}
 	defer db.Close()
 
+	return nil
+
 }
-
-
-
-
