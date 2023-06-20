@@ -12,7 +12,7 @@ import (
 
 
 
-func createAccount() {
+func createAccounts() {
 	db := helpers.ConnectDB()
 
 	//dommy data
@@ -54,12 +54,21 @@ func Migrate() error {
 		return fmt.Errorf("error migrating models: %v", err)
 	}
 	defer db.Close()
-	createAccount()
+	createAccounts()
 
 	return nil
 
 }
 
+func MigrateTranscations() {
+
+	Transactions := &models.Transaction{}
+
+	db := helpers.ConnectDB()
+	db.AutoMigrate(&Transactions)
+	defer db.Close()
+
+}
 
 
 

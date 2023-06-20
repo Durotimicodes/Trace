@@ -67,7 +67,7 @@ func Login(username string, pass string) map[string]interface{} {
 		db.Table("account").Select("id, name, balance").Where("user_id = ?", user.ID).Scan(&account)
 		defer db.Close()
 
-		var response = prepareResponse(user, account, true)
+		var response = prepareResponse(user, account, false)
 
 		return response
 
