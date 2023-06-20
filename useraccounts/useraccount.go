@@ -1,9 +1,11 @@
 package useraccounts
 
 import (
+	"fmt"
+
 	"github.com/durotimicodes/trace-backend/helpers"
 	"github.com/durotimicodes/trace-backend/models"
-	"fmt"
+	"github.com/durotimicodes/trace-backend/transactions"
 )
 
 func updateAccount(id uint, amount int) models.ResponseAccount {

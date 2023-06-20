@@ -7,6 +7,7 @@ import (
 
 	"github.com/durotimicodes/trace-backend/helpers"
 	"github.com/durotimicodes/trace-backend/models"
+	"github.com/durotimicodes/trace-backend/useraccounts"
 	"github.com/durotimicodes/trace-backend/users"
 	"github.com/gorilla/mux"
 )
@@ -27,7 +28,7 @@ func apiResponse(call map[string]interface{}, w http.ResponseWriter) {
 		json.NewEncoder(w).Encode(resp)
 	} else {
 		//Handle error
-		resp := models.ErrResponse{Message: "Invalid credentials"}
+		resp := call
 		json.NewEncoder(w).Encode(resp)
 	}
 }
@@ -62,12 +63,28 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	apiResponse(register, w)
 }
 
-
-func getUserHandler(w http.ResponseWriter, r *http.Request){
+func getUserHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userId := vars["id"]
 	auth := r.Header.Get("Authorization")
 
 	user := users.GetUser(userId, auth)
 	apiResponse(user, w)
+}
+
+func transactionHandler(w http.ResponseWriter, r *http.Request) {
+	body := readBody(r)
+	auth := r.Header.Get("Authorization")
+
+	//Handle Register
+	var formattedBody models.TransactionBody
+
+	err := json.Unmarshal(body, &formattedBody)
+	helpers.HandleErr(err)
+
+	transaction := useraccounts.Transaction(formattedBody.UserId, formattedBody.From, formattedBody.To, formattedBody.Amount, auth)
+
+	//Prepare response
+	apiResponse(transaction, w)
+
 }
