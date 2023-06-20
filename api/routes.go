@@ -18,6 +18,7 @@ func StartApi() {
 	//Registered routes
 	router.HandleFunc("/login", loginHandler).Methods("POST")
 	router.HandleFunc("/register", registerHandler).Methods("POST")
+	router.HandleFunc("/transaction", transactionHandler).Methods("POST")
 	router.HandleFunc("/user/{id}", getUserHandler).Methods("GET")
 
 	fmt.Printf("Trace Bank App working on port %s", webPort)
