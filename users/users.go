@@ -6,7 +6,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/durotimicodes/trace-backend/helpers"
 	"github.com/durotimicodes/trace-backend/models"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func prepareToken(user *models.User) string {
@@ -57,22 +56,15 @@ func Login(username string, pass string) map[string]interface{} {
 	if valid {
 		//Connect db
 		db := helpers.ConnectDB()
+
 		user := &models.User{}
 		if db.Where("username = ?", username).First(&user).RecordNotFound() {
 			return map[string]interface{}{"message": "User not found"}
 		}
 
-		//Verify pasword
-		passErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(pass))
-
-		if passErr == bcrypt.ErrMismatchedHashAndPassword && passErr != nil {
-			return map[string]interface{}{"message": "Wrong password"}
-		}
-
 		//Find account for the user
 		account := []models.ResponseAccount{}
 		db.Table("account").Select("id, name, balance").Where("user_id = ?", user.ID).Scan(&account)
-
 		defer db.Close()
 
 		var response = prepareResponse(user, account, true)
@@ -125,13 +117,32 @@ func Register(username, email, pass string) map[string]interface{} {
 
 		return response
 
-
 	} else {
 		return map[string]interface{}{"message": "Not valid credentials"}
 	}
 }
 
+func GetUser(id string, jwt string) map[string]interface{} {
+	isValid := helpers.ValidateToken(id, jwt)
 
-// func GetUser(id string, jwt string) map[string]interface{}{
+	if isValid {
+		db := helpers.ConnectDB()
 
-// }
+		user := &models.User{}
+		if db.Where("id = ?", id).First(&user).RecordNotFound() {
+			return map[string]interface{}{"message": "User not found"}
+		}
+
+		//Find account for the user
+		account := []models.ResponseAccount{}
+		db.Table("account").Select("id, name, balance").Where("user_id = ?", user.ID).Scan(&account)
+		defer db.Close()
+
+		var response = prepareResponse(user, account, false)
+		return response
+
+	} else {
+		return map[string]interface{}{"message": "Not valid token"}
+	}
+
+}

@@ -15,9 +15,10 @@ func StartApi() {
 	router := mux.NewRouter()
 	router.Use(helpers.PanicHandler)
 
-	//Register routes
+	//Registered routes
 	router.HandleFunc("/login", loginHandler).Methods("POST")
 	router.HandleFunc("/register", registerHandler).Methods("POST")
+	router.HandleFunc("/user/{id}", getUserHandler).Methods("GET")
 
 	fmt.Printf("Starting server on port %s", webPort)
 	log.Fatal(http.ListenAndServe(":8888", router))

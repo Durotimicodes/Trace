@@ -79,7 +79,7 @@ func PanicHandler(next http.Handler) http.Handler {
 			error := recover()
 			if error != nil {
 				log.Println(error)
-				resp := models.ErrResponse{Message: "Interbal server error"}
+				resp := models.ErrResponse{Message: "Internal server error"}
 				json.NewEncoder(w).Encode(resp)
 			}
 		}()

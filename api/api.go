@@ -8,6 +8,7 @@ import (
 	"github.com/durotimicodes/trace-backend/helpers"
 	"github.com/durotimicodes/trace-backend/models"
 	"github.com/durotimicodes/trace-backend/users"
+	"github.com/gorilla/mux"
 )
 
 func readBody(r *http.Request) []byte {
@@ -59,4 +60,14 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 	//Prepare response
 	apiResponse(register, w)
+}
+
+
+func getUserHandler(w http.ResponseWriter, r *http.Request){
+	vars := mux.Vars(r)
+	userId := vars["id"]
+	auth := r.Header.Get("Authorization")
+
+	user := users.GetUser(userId, auth)
+	apiResponse(user, w)
 }
