@@ -20,7 +20,7 @@ func StartApi() {
 	router.HandleFunc("/register", registerHandler).Methods("POST")
 	router.HandleFunc("/transaction", transactionHandler).Methods("POST")
 	router.HandleFunc("/user/{id}", getUserHandler).Methods("GET")
-
+	router.HandleFunc("/transactions/{userID}", getMyTransaction).Methods("GET")
 	fmt.Printf("Trace Bank App working on port %s", webPort)
 	log.Fatal(http.ListenAndServe(":8888", router))
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/durotimicodes/trace-backend/helpers"
 	"github.com/durotimicodes/trace-backend/models"
+	"github.com/durotimicodes/trace-backend/transactions"
 	"github.com/durotimicodes/trace-backend/useraccounts"
 	"github.com/durotimicodes/trace-backend/users"
 	"github.com/gorilla/mux"
@@ -70,6 +71,15 @@ func getUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	user := users.GetUser(userId, auth)
 	apiResponse(user, w)
+}
+
+func getMyTransaction(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userId := vars["userID"]
+	auth := r.Header.Get("Authorization")
+
+	transactions := transactions.GetMyTransactions(userId, auth)
+	apiResponse(transactions, w)
 }
 
 func transactionHandler(w http.ResponseWriter, r *http.Request) {
