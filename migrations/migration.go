@@ -3,6 +3,7 @@ package migrations
 import (
 	"fmt"
 
+	"github.com/durotimicodes/trace-backend/api/database"
 	"github.com/durotimicodes/trace-backend/helpers"
 	"github.com/durotimicodes/trace-backend/models"
 
@@ -10,13 +11,8 @@ import (
 )
 
 func createAccounts() {
-	db := helpers.ConnectDB()
 
-	//dommy data
-	users := []models.User{
-		{Username: "Oluwadurotimi", Email: "edmondfagbuyi@gmail.com"},
-		{Username: "Ebunoluwa", Email: "omotarfagbuyi@gmail.com"},
-	}
+	users := []models.User{}
 
 	for i := 0; i < len(users); i++ {
 		generatePassword := helpers.HashAndSalt([]byte(users[i].Username))
@@ -25,7 +21,7 @@ func createAccounts() {
 			Email:    users[i].Email,
 			Password: generatePassword,
 		}
-		db.Create(&user)
+		database.DB.Create(&user)
 
 		account := models.Account{
 			Type:    "Savings Account",
@@ -33,23 +29,23 @@ func createAccounts() {
 			Balance: uint(10000 * int(i+1)),
 			UserID:  user.ID,
 		}
-		db.Create(&account)
+		database.DB.Create(&account)
 	}
 
-	defer db.Close() //close the db connection
+	defer database.DB.Close() //close the db connection
 }
 
 func Migrate() error {
 
 	User := &models.User{}
 	Account := &models.Account{}
-	db := helpers.ConnectDB()
+	
 
-	err := db.AutoMigrate(&User, &Account)
+	err := database.DB.AutoMigrate(&User, &Account)
 	if err != nil {
 		return fmt.Errorf("error migrating models: %v", err)
 	}
-	defer db.Close()
+	defer database.DB.Close()
 	createAccounts()
 
 	return nil
@@ -60,12 +56,11 @@ func MigrateTranscations() error {
 
 	Transactions := &models.Transaction{}
 
-	db := helpers.ConnectDB()
-	err := db.AutoMigrate(&Transactions)
+	err := database.DB.AutoMigrate(&Transactions)
 	if err != nil {
 		return fmt.Errorf("error migrating models: %v", err)
 	}
-	defer db.Close()
+	defer database.DB.Close()
 
 	return nil
 

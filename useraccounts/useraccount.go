@@ -3,41 +3,35 @@ package useraccounts
 import (
 	"fmt"
 
+	"github.com/durotimicodes/trace-backend/api/database"
 	"github.com/durotimicodes/trace-backend/helpers"
 	"github.com/durotimicodes/trace-backend/models"
 	"github.com/durotimicodes/trace-backend/transactions"
 )
 
 func updateAccount(id uint, amount int) models.ResponseAccount {
-	db := helpers.ConnectDB()
 
 	account := models.Account{}
 	responseAcc := models.ResponseAccount{}
 
-	db.Where("id = ?", id).First(&account)
+	database.DB.Where("id = ?", id).First(&account)
 	account.Balance = uint(amount)
-	db.Save(&account)
+	database.DB.Save(&account)
 
 	responseAcc.ID = account.ID
 	responseAcc.Name = account.Name
 	responseAcc.Balance = int(account.Balance)
 
-	defer db.Close()
-
 	return responseAcc
 }
 
 func getAccount(id uint) *models.Account {
-	db := helpers.ConnectDB()
+	
 	account := &models.Account{}
-	if db.Where("id = ?", id).First(&account).RecordNotFound() {
+	if database.DB.Where("id = ?", id).First(&account).RecordNotFound() {
 		return nil
 	}
-
-	defer db.Close()
-
 	return account
-
 }
 
 func Transaction(userId uint, from uint, to uint, amount int, jwt string) map[string]interface{} {

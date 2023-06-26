@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/durotimicodes/trace-backend/api/database"
 	"github.com/durotimicodes/trace-backend/helpers"
 	"github.com/durotimicodes/trace-backend/models"
 )
@@ -54,20 +55,19 @@ func Login(username string, pass string) map[string]interface{} {
 		})
 
 	if valid {
-		//Connect db
-		db := helpers.ConnectDB()
 
 		user := &models.User{}
-		if db.Where("username = ?", username).First(&user).RecordNotFound() {
+		if database.DB.Where("username = ?", username).First(&user).RecordNotFound() {
 			return map[string]interface{}{"message": "User not found"}
 		}
 
 		//Find account for the user
 		account := []models.ResponseAccount{}
-		db.Table("account").Select("id, name, balance").Where("user_id = ?", user.ID).Scan(&account)
-		defer db.Close()
+		if database.DB.Table("account").Select("id, name, balance").Where("user_id = ?", user.ID).Scan(&account).RecordNotFound() {
+			return map[string]interface{}{"message": "User account not found"}
+		}
 
-		var response = prepareResponse(user, account, false)
+		var response = prepareResponse(user, account, true)
 
 		return response
 
@@ -86,14 +86,14 @@ func Register(username, email, pass string) map[string]interface{} {
 		})
 
 	if valid {
-		db := helpers.ConnectDB()
+		//Create registration Logic
 		generatePassword := helpers.HashAndSalt([]byte(pass))
 		user := models.User{
 			Username: username,
 			Email:    email,
 			Password: generatePassword,
 		}
-		db.Create(&user)
+		database.DB.Create(&user)
 
 		account := models.Account{
 			Type:    "Savings Account",
@@ -101,9 +101,7 @@ func Register(username, email, pass string) map[string]interface{} {
 			Balance: uint(0),
 			UserID:  user.ID,
 		}
-		db.Create(&account)
-
-		defer db.Close()
+		database.DB.Create(&account)
 
 		accounts := []models.ResponseAccount{}
 		respAccount := models.ResponseAccount{
@@ -125,18 +123,17 @@ func Register(username, email, pass string) map[string]interface{} {
 func GetUser(id string, jwt string) map[string]interface{} {
 	isValid := helpers.ValidateToken(id, jwt)
 
+	//Find and return User
 	if isValid {
-		db := helpers.ConnectDB()
 
 		user := &models.User{}
-		if db.Where("id = ?", id).First(&user).RecordNotFound() {
+		if database.DB.Where("id = ?", id).First(&user).RecordNotFound() {
 			return map[string]interface{}{"message": "User not found"}
 		}
 
 		//Find account for the user
 		account := []models.ResponseAccount{}
-		db.Table("account").Select("id, name, balance").Where("user_id = ?", user.ID).Scan(&account)
-		defer db.Close()
+		database.DB.Table("account").Select("id, name, balance").Where("user_id = ?", user.ID).Scan(&account)
 
 		var response = prepareResponse(user, account, false)
 		return response

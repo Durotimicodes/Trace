@@ -2,13 +2,12 @@ package main
 
 import (
 	"github.com/durotimicodes/trace-backend/api"
-	"github.com/durotimicodes/trace-backend/migrations"
+	"github.com/durotimicodes/trace-backend/api/database"
 )
 
 func main() {
-
-	migrations.Migrate()
-	migrations.MigrateTranscations()
+	
+	database.InitDatabase()
 	api.StartApi()
 
 }

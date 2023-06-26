@@ -2,19 +2,15 @@ package helpers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/durotimicodes/trace-backend/models"
-	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -29,23 +25,6 @@ func HashAndSalt(pass []byte) string {
 	HandleErr(err)
 
 	return string(hashed)
-}
-
-func ConnectDB() *gorm.DB {
-
-	err := godotenv.Load(".env")
-	HandleErr(err)
-
-	host := os.Getenv("DB_HOST")
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_NAME")
-	port := os.Getenv("DB_PORT")
-
-	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", host, port, user, dbname, password)
-	db, err := gorm.Open("postgres", dsn)
-	HandleErr(err)
-	return db
 }
 
 func Validation(values []models.Validation) bool {
@@ -101,6 +80,5 @@ func ValidateToken(id string, jwtToken string) bool {
 	} else {
 		return false
 	}
-
 
 }
